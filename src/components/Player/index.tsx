@@ -1,11 +1,10 @@
-// src/layout/Footer/Player.tsx
 import React from 'react'
 import './styles.scss'
 
 export interface IPlayerProps {
   currentSongIndex: number
-  setCurrentSongIndex: any
-  songs: any[]
+  setCurrentSongIndex: React.Dispatch<React.SetStateAction<number>>
+  songs: { youtube_embed: string; title: string }[]
 }
 
 const Player = ({
@@ -16,12 +15,15 @@ const Player = ({
   const handlePlayPause = () => {
     const currentSong = songs[currentSongIndex]
     if (currentSong) {
-      window.open(currentSong.src, '_blank', 'noopener,noreferrer')
+      console.log('Playing URL:', currentSong.youtube_embed) // 콘솔에서 링크 확인
+      window.open(currentSong.youtube_embed, '_blank', 'noopener,noreferrer')
+    } else {
+      console.error('Current song is undefined or null')
     }
   }
 
   const SkipSong = (forwards = true) => {
-    setCurrentSongIndex((prevIndex: number) => {
+    setCurrentSongIndex(prevIndex => {
       let newIndex = prevIndex + (forwards ? 1 : -1)
       if (newIndex < 0) {
         newIndex = songs.length - 1

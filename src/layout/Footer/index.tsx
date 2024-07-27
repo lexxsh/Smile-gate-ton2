@@ -1,20 +1,27 @@
-// src/layout/Footer/index.tsx
 import React, { useState, useEffect } from 'react'
 import { useAppSelector } from '../../store/store'
 import { RootState } from '../../store/store'
 import { fetchVideoTitle } from './fetchYoutube'
 import './styles.scss'
 import { CONSTANTS } from '../../constants/constants'
-import Player from '../../components/Player' // Import Player component
+import Player from '../../components/Player'
 
-const Footer = () => {
+interface RecommendedMusic {
+  youtube_embed: string // YouTube embed link
+  title: string
+}
+
+interface FooterProps {
+  recommendedMusic: RecommendedMusic[]
+}
+
+const Footer: React.FC<FooterProps> = ({ recommendedMusic }) => {
   const data = useAppSelector((state: RootState) => state.mood)
   const { moodMode } = data
 
   const [currentSongIndex, setCurrentSongIndex] = useState(0)
-  const [videoId, setVideoId] = useState<string>('')
   const [videoTitle, setVideoTitle] = useState<string>('로딩 중...')
-  const [songs, setSongs] = useState<any[]>([])
+  const [songs, setSongs] = useState<RecommendedMusic[]>([])
 
   useEffect(() => {
     const getQueryFromMood = () => {
@@ -31,21 +38,38 @@ const Footer = () => {
     }
 
     const loadVideoId = async () => {
-      const query = getQueryFromMood()
-      const exampleVideoId = 'dQw4w9WgXcQ' // Example video ID
-      setVideoId(exampleVideoId)
+      if (recommendedMusic.length > 0) {
+        // Set the title of the current song
+        const currentSong = recommendedMusic[currentSongIndex]
+        if (currentSong) {
+          setVideoTitle(currentSong.title)
+          setSongs(recommendedMusic)
+        }
+      } else {
+        const query = getQueryFromMood()
+        const exampleVideoId = 'dQw4w9WgXcQ' // Example video ID
+        setVideoTitle('로딩 중...')
 
-      const title = await fetchVideoTitle(exampleVideoId)
-      setVideoTitle(title)
+        const title = await fetchVideoTitle(exampleVideoId)
+        setVideoTitle(title)
 
-      // Set songs for the player
-      setSongs([
-        { src: `https://www.youtube.com/watch?v=${exampleVideoId}`, title },
-      ])
+        setSongs([
+          {
+            youtube_embed: `https://www.youtube.com/embed/${exampleVideoId}`,
+            title,
+          },
+        ])
+      }
     }
 
     loadVideoId()
-  }, [moodMode])
+  }, [moodMode, recommendedMusic, currentSongIndex])
+
+  useEffect(() => {
+    if (recommendedMusic.length > 0 && recommendedMusic[currentSongIndex]) {
+      setVideoTitle(recommendedMusic[currentSongIndex].title)
+    }
+  }, [currentSongIndex, recommendedMusic])
 
   return (
     <div className="footer">
@@ -55,7 +79,7 @@ const Footer = () => {
       <Player
         currentSongIndex={currentSongIndex}
         setCurrentSongIndex={setCurrentSongIndex}
-        songs={songs} // Pass songs to Player
+        songs={recommendedMusic} // Pass recommendedMusic here
       />
       <div className="author">
         제작자:
