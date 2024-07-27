@@ -41,22 +41,23 @@ const Footer: React.FC<FooterProps> = ({ recommendedMusic }) => {
       if (recommendedMusic.length > 0) {
         // Set the title of the current song
         const currentSong = recommendedMusic[currentSongIndex]
-        if (currentSong) {
-          setVideoTitle(currentSong.title)
-          setSongs(recommendedMusic)
-        }
+        setVideoTitle(currentSong.title)
+
+        // Set songs for the player
+        setSongs(recommendedMusic)
       } else {
         const query = getQueryFromMood()
-        const exampleVideoId = 'dQw4w9WgXcQ' // Example video ID
+        const exampleVideoId = 'dQw4w9WgXcQ'
         setVideoTitle('로딩 중...')
 
         const title = await fetchVideoTitle(exampleVideoId)
         setVideoTitle(title)
 
+        // Set a default song for the player
         setSongs([
           {
             youtube_embed: `https://www.youtube.com/embed/${exampleVideoId}`,
-            title,
+            title: videoTitle,
           },
         ])
       }
@@ -66,7 +67,7 @@ const Footer: React.FC<FooterProps> = ({ recommendedMusic }) => {
   }, [moodMode, recommendedMusic, currentSongIndex])
 
   useEffect(() => {
-    if (recommendedMusic.length > 0 && recommendedMusic[currentSongIndex]) {
+    if (recommendedMusic.length > 0) {
       setVideoTitle(recommendedMusic[currentSongIndex].title)
     }
   }, [currentSongIndex, recommendedMusic])
@@ -79,7 +80,7 @@ const Footer: React.FC<FooterProps> = ({ recommendedMusic }) => {
       <Player
         currentSongIndex={currentSongIndex}
         setCurrentSongIndex={setCurrentSongIndex}
-        songs={recommendedMusic} // Pass recommendedMusic here
+        songs={songs} // Correctly pass the songs state
       />
       <div className="author">
         제작자:

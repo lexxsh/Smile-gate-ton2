@@ -7,11 +7,11 @@ export interface IPlayerProps {
   songs: { youtube_embed: string; title: string }[]
 }
 
-const Player = ({
+const Player: React.FC<IPlayerProps> = ({
   currentSongIndex,
   setCurrentSongIndex,
   songs,
-}: IPlayerProps) => {
+}) => {
   const handlePlayPause = () => {
     const currentSong = songs[currentSongIndex]
     if (currentSong) {
